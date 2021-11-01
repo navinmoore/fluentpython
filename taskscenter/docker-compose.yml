@@ -1,0 +1,29 @@
+version: '3'
+
+services:
+  redis:
+    image: redis:latest
+    hostname: redis
+  
+  rabbit:
+    hostname: rabbit
+    image: rabbitmq:latest
+    environment:
+      - RABBITMQ_DEFAULT_USER=guest
+      - RABBITMQ_DEFAULT_PASS=guest
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+  #celery worker
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: sh ./run_celery.sh
+    volumes:
+      - .:/app
+    links:
+      - rabbit
+      - redis
+    depends_on:
+      - rabbit
